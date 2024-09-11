@@ -1,0 +1,13 @@
+server:
+  port: ${api.port.user-service}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  config:
+    import: configserver:http://localhost:9999
+  data:
+    mongodb:
+      port: 27018
+      database: userdb
