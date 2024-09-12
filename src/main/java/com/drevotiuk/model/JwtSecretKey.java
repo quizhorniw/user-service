@@ -20,14 +20,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class JwtSecretKey {
-  /**
-   * The unique identifier for the secret key.
-   */
+  /** The unique identifier for the secret key. */
   @Id
   private String id;
 
-  /**
-   * The encrypted key used for JWT encryption and decryption.
-   */
+  /** The encrypted key used for JWT encryption and decryption. */
   private byte[] encryptedKey;
 }

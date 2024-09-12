@@ -25,9 +25,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ConfirmationToken {
-  /**
-   * Unique identifier for the confirmation token.
-   */
+  /** Unique identifier for the confirmation token. */
   @Id
   private ObjectId id;
 
@@ -38,14 +36,10 @@ public class ConfirmationToken {
   @Indexed
   private String token;
 
-  /**
-   * The date and time when the token was issued.
-   */
+  /** The date and time when the token was issued. */
   private LocalDateTime issuedAt;
 
-  /**
-   * The date and time when the token expires.
-   */
+  /** The date and time when the token expires. */
   private LocalDateTime expiredAt;
 
   /**
@@ -54,8 +48,6 @@ public class ConfirmationToken {
    */
   private boolean activated;
 
-  /**
-   * The email address of the user associated with the token.
-   */
+  /** The email address of the user associated with the token. */
   private String userEmail;
 }

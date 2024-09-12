@@ -45,8 +45,10 @@ public class AuthService {
   @Value("${rabbitmq.routingkey.email-verification}")
   private String routingKey;
 
-  private static final String USER_ID_HEADER = "X-User-ID";
-  private static final String USER_ROLE_HEADER = "X-User-Role";
+  @Value("${security.header.id}")
+  private String userIdHeader;
+  @Value("${security.header.role}")
+  private String userRoleHeader;
 
   @Lazy
   @Autowired
@@ -116,8 +118,8 @@ public class AuthService {
     UserPrincipal principal = getUserByEmail(email);
 
     Map<String, String> headers = new HashMap<>();
-    headers.put(USER_ID_HEADER, principal.getId().toString());
-    headers.put(USER_ROLE_HEADER, principal.getRole().name());
+    headers.put(userIdHeader, principal.getId().toString());
+    headers.put(userRoleHeader, principal.getRole().name());
 
     return new UserHeaders(headers);
   }

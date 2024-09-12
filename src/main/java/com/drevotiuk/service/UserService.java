@@ -76,17 +76,18 @@ public class UserService {
    * Handles a user request message from RabbitMQ and returns user information.
    *
    * @param userId the ID of the user to fetch.
-   * @return an optional {@link UserView} containing the user's details if found.
+   * @return a {@link UserView} containing the user's details if found;
+   *         {@code null} otherwise.
    */
   @RabbitListener(queues = { "${rabbitmq.queue.user}" })
-  public Optional<UserView> handleUserRequest(String userId) {
+  public UserView handleUserRequest(String userId) {
     log.info("Received user request message; userID: {}", userId);
     if (!ObjectId.isValid(userId)) {
       log.warn("Invalid user ID format: {}", userId);
-      return Optional.empty();
+      return null;
     }
 
-    return Optional.of(new UserView(findPrincipalById(new ObjectId(userId))));
+    return new UserView(findPrincipalById(new ObjectId(userId)));
   }
 
   /**

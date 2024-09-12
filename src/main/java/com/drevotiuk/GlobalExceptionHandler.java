@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -101,13 +102,25 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<Map<String, String>> handleMethodArgTypeMismatchException(
-      MethodArgumentTypeMismatchException e) {
+  public ResponseEntity<Map<String, String>> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
     return buildErrorResponse(e, HttpStatus.BAD_REQUEST);
   }
 
   /**
-   * Handles {@link UserNotFoundException}.
+   * Handles the {@link HttpMessageConversionException}.
+   * 
+   * @param e the {@link HttpMessageConversionException} thrown when there is
+   *          a conversion error
+   * @return a ResponseEntity containing a standardized error response
+   */
+  @ExceptionHandler(HttpMessageConversionException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ResponseEntity<Map<String, String>> handleMessageConversionException(HttpMessageConversionException e) {
+    return buildErrorResponse(e, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Handles the {@link UserNotFoundException}.
    * 
    * @param e the {@link UserNotFoundException} thrown when a user is not found
    * @return a ResponseEntity containing a standardized error response
@@ -119,7 +132,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handles {@link UsernameNotFoundException}.
+   * Handles the {@link UsernameNotFoundException}.
    * 
    * @param e the {@link UsernameNotFoundException} thrown when a
    *          username is not found
@@ -145,7 +158,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handles {@link IllegalArgumentException}.
+   * Handles the {@link IllegalArgumentException}.
    * 
    * @param e the {@link IllegalArgumentException} thrown when an
    *          illegal argument is passed

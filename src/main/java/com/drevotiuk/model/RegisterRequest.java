@@ -28,15 +28,11 @@ import lombok.ToString;
 @Getter
 @ToString
 public class RegisterRequest {
-  /**
-   * The first name of the user. Cannot be blank.
-   */
+  /** The first name of the user. Cannot be blank. */
   @NotBlank(message = "First name is required")
   private String firstName;
 
-  /**
-   * The last name of the user. Cannot be blank.
-   */
+  /** The last name of the user. Cannot be blank. */
   @NotBlank(message = "Last name is required")
   private String lastName;
 

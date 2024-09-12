@@ -16,18 +16,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class EmailVerificationDetails {
-  /**
-   * The email address of the recipient to be verified.
-   */
+  /** The email address of the recipient to be verified. */
   private String email;
 
-  /**
-   * The first name of the recipient.
-   */
+  /** The first name of the recipient. */
   private String firstName;
 
-  /**
-   * The verification link to be sent to the recipient.
-   */
+  /** The verification link to be sent to the recipient. */
   private String link;
 }

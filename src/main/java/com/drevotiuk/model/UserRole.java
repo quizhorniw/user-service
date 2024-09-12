@@ -12,13 +12,9 @@ package com.drevotiuk.model;
  * </ul>
  */
 public enum UserRole {
-  /**
-   * Represents a regular user with standard access rights.
-   */
+  /** Represents a regular user with standard access rights. */
   USER,
 
-  /**
-   * Represents an administrator with elevated access rights.
-   */
+  /** Represents an administrator with elevated access rights. */
   ADMIN
 }
