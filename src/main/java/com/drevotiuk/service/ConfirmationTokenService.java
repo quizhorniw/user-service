@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.drevotiuk.model.ConfirmationToken;
-import com.drevotiuk.model.UserPrincipal;
 import com.drevotiuk.model.exception.ConfirmationTokenException;
 import com.drevotiuk.repository.ConfirmationTokenRepository;
 
@@ -35,9 +34,9 @@ public class ConfirmationTokenService {
    * @param principal the user principal for whom the token is created.
    * @return the generated confirmation token.
    */
-  public String create(UserPrincipal principal) {
+  public String create(String email) {
     String token = UUID.randomUUID().toString();
-    ConfirmationToken confirmationToken = build(principal, token);
+    ConfirmationToken confirmationToken = build(email, token);
     save(confirmationToken);
     log.info("Created confirmation token: {}", token);
     return token;
@@ -56,7 +55,7 @@ public class ConfirmationTokenService {
     log.info("Token confirmation: {}", token);
     ConfirmationToken confirmationToken = find(token);
     validate(confirmationToken);
-    activate(confirmationToken);
+    activateAndSave(confirmationToken);
     authService.enableUser(confirmationToken.getUserEmail());
     log.info("Email verified successfully for token: {}", token);
     return "Email verified successfully";
@@ -83,14 +82,14 @@ public class ConfirmationTokenService {
    * @param token     the token value.
    * @return a new {@link ConfirmationToken} instance.
    */
-  private ConfirmationToken build(UserPrincipal principal, String token) {
+  private ConfirmationToken build(String email, String token) {
     return new ConfirmationToken(
         ObjectId.get(),
         token,
         LocalDateTime.now(),
         LocalDateTime.now().plusMinutes(tokenExpirationMinutes),
         false,
-        principal.getEmail());
+        email);
   }
 
   /**
@@ -103,11 +102,11 @@ public class ConfirmationTokenService {
    */
   private void validate(ConfirmationToken token) {
     if (token.isActivated()) {
-      log.warn("Email for token {} is already verified", token.getToken());
+      log.warn("Email is already verified for token: {}", token.getToken());
       throw new ConfirmationTokenException("Email is already verified");
     }
     if (token.getExpiredAt().isBefore(LocalDateTime.now())) {
-      log.warn("Token {} is expired", token.getToken());
+      log.warn("Token is expired: {}", token.getToken());
       throw new ConfirmationTokenException("Verification link is expired");
     }
   }
@@ -117,7 +116,7 @@ public class ConfirmationTokenService {
    * 
    * @param token the confirmation token to activate.
    */
-  private void activate(ConfirmationToken token) {
+  private void activateAndSave(ConfirmationToken token) {
     token.setActivated(true);
     log.info("Token {} activated", token.getToken());
     save(token);

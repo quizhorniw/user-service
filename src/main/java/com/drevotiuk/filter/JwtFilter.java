@@ -7,12 +7,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +22,6 @@ import com.drevotiuk.service.UserPrincipalService;
 import com.drevotiuk.service.JwtService;
 
 import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
 
 /**
  * A filter that processes JWT authentication tokens for incoming HTTP requests.
@@ -36,16 +35,19 @@ import lombok.RequiredArgsConstructor;
  * </p>
  */
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
   private static final String BEARER_PREFIX = "Bearer ";
 
   private final JwtService jwtService;
   private final UserPrincipalService principalService;
+  private final HandlerExceptionResolver exceptionResolver;
 
-  @Autowired
-  @Qualifier("handlerExceptionResolver")
-  private HandlerExceptionResolver exceptionResolver;
+  public JwtFilter(JwtService jwtService, UserPrincipalService principalService,
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+    this.jwtService = jwtService;
+    this.principalService = principalService;
+    this.exceptionResolver = exceptionResolver;
+  }
 
   /**
    * Performs the filter logic for JWT authentication.
@@ -77,14 +79,15 @@ public class JwtFilter extends OncePerRequestFilter {
     try {
       String token = extractToken(authHeader);
       String email = jwtService.extractUsername(token);
-      if (email == null || isAuthenticationPresent() || !isValidToken(token, email)) {
+      if (email == null || isAuthenticationPresent()) {
         filterChain.doFilter(request, response);
         return;
       }
 
+      validateToken(token, email);
       authenticateUser(request, email);
       filterChain.doFilter(request, response);
-    } catch (JwtException e) {
+    } catch (JwtException | UsernameNotFoundException e) {
       handleException(request, response, e);
     }
   }
@@ -126,9 +129,10 @@ public class JwtFilter extends OncePerRequestFilter {
    * @param email the email extracted from the token
    * @return {@code true} if the token is valid, otherwise {@code false}
    */
-  private boolean isValidToken(String token, String email) {
+  private void validateToken(String token, String email) {
     UserDetails userDetails = principalService.loadUserByUsername(email);
-    return jwtService.validateToken(token, userDetails);
+    if (!jwtService.validateToken(token, userDetails))
+      throw new JwtException("JWT is invalid"); // For case when JwtService won't throw exception itself
   }
 
   /**
@@ -152,7 +156,7 @@ public class JwtFilter extends OncePerRequestFilter {
    * @param response  the HTTP response
    * @param exception the exception that occurred
    */
-  private void handleException(HttpServletRequest request, HttpServletResponse response, JwtException exception) {
+  private void handleException(HttpServletRequest request, HttpServletResponse response, Exception exception) {
     exceptionResolver.resolveException(request, response, null, exception);
   }
 }

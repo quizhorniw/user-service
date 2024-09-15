@@ -8,9 +8,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Represents a confirmation token used for email verification.
@@ -22,11 +22,11 @@ import lombok.Setter;
 @Document("confirmation_tokens")
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 public class ConfirmationToken {
   /** Unique identifier for the confirmation token. */
   @Id
+  @EqualsAndHashCode.Exclude
   private ObjectId id;
 
   /**

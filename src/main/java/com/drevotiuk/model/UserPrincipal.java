@@ -13,9 +13,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Represents a user in the system with details required for authentication and
@@ -28,11 +28,11 @@ import lombok.Setter;
 @Document("users")
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 public class UserPrincipal implements UserDetails {
   /** Unique identifier for the user. */
   @Id
+  @EqualsAndHashCode.Exclude
   private ObjectId id;
 
   /** The user's first name. */

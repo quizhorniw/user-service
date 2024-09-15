@@ -50,28 +50,6 @@ public class UserManagementService {
   }
 
   /**
-   * Updates the fields of an existing user with the values from the updated user.
-   *
-   * @param initial the initial user to be updated.
-   * @param updated the updated user containing new values.
-   */
-  private void updateUserFields(UserPrincipal initial, UserPrincipal updated) {
-    Optional.ofNullable(updated.getFirstName())
-        .filter(firstName -> !firstName.isEmpty())
-        .ifPresent(firstName -> {
-          log.info("Updated first name for user with ID {}: {}", initial.getId(), firstName);
-          initial.setFirstName(firstName);
-        });
-
-    Optional.ofNullable(updated.getLastName())
-        .filter(lastName -> !lastName.isEmpty())
-        .ifPresent(lastName -> {
-          log.info("Updated last name for user with ID {}: {}", initial.getId(), lastName);
-          initial.setLastName(lastName);
-        });
-  }
-
-  /**
    * Updates a user identified by their ID with new values.
    *
    * @param userId           the ID of the user to update.
@@ -105,7 +83,29 @@ public class UserManagementService {
   private UserPrincipal findById(ObjectId userId) {
     return repository.findById(userId).orElseThrow(() -> {
       log.warn("User with ID {} not found", userId);
-      return new UserNotFoundException(String.format("User with ID %s not found", userId));
+      return new UserNotFoundException("User not found with ID: " + userId);
     });
+  }
+
+  /**
+   * Updates the fields of an existing user with the values from the updated user.
+   *
+   * @param initial the initial user to be updated.
+   * @param updated the updated user containing new values.
+   */
+  private void updateUserFields(UserPrincipal initial, UserPrincipal updated) {
+    Optional.ofNullable(updated.getFirstName())
+        .filter(firstName -> !firstName.isEmpty())
+        .ifPresent(firstName -> {
+          log.info("Updated first name for user with ID {}: {}", initial.getId(), firstName);
+          initial.setFirstName(firstName);
+        });
+
+    Optional.ofNullable(updated.getLastName())
+        .filter(lastName -> !lastName.isEmpty())
+        .ifPresent(lastName -> {
+          log.info("Updated last name for user with ID {}: {}", initial.getId(), lastName);
+          initial.setLastName(lastName);
+        });
   }
 }

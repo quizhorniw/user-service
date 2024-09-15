@@ -50,16 +50,6 @@ public class JwtService {
   }
 
   /**
-   * Extracts the username from the given JWT token.
-   *
-   * @param token the JWT token from which to extract the username.
-   * @return the username contained in the token as a {@link String}.
-   */
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
-
-  /**
    * Validates the given JWT token based on the username and expiration.
    *
    * @param token       the JWT token to validate.
@@ -70,18 +60,18 @@ public class JwtService {
    */
   public boolean validateToken(String token, UserDetails userDetails) {
     final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    verifyTokenExpiration(token);
+    return username.equals(userDetails.getUsername());
   }
 
   /**
-   * Retrieves the secret key used for signing and verifying JWT tokens.
-   * 
-   * @return the {@link SecretKey} used for JWT operations.
+   * Extracts the username from the given JWT token.
+   *
+   * @param token the JWT token from which to extract the username.
+   * @return the username contained in the token as a {@link String}.
    */
-  private SecretKey getKey() {
-    byte[] encodedKeyBytes = kmsUtils.decrypt(keyService.getEncryptedSecretKey());
-    byte[] keyBytes = Base64.getDecoder().decode(encodedKeyBytes);
-    return Keys.hmacShaKeyFor(keyBytes);
+  public String extractUsername(String token) {
+    return extractClaim(token, Claims::getSubject);
   }
 
   /**
@@ -119,7 +109,7 @@ public class JwtService {
    * @param token the JWT token to check.
    * @return {@code true} if the token is expired; {@code false} otherwise.
    */
-  private boolean isTokenExpired(String token) {
+  private boolean verifyTokenExpiration(String token) {
     return extractExpiration(token).before(new Date());
   }
 
@@ -131,5 +121,16 @@ public class JwtService {
    */
   private Date extractExpiration(String token) {
     return extractClaim(token, Claims::getExpiration);
+  }
+
+  /**
+   * Retrieves the secret key used for signing and verifying JWT tokens.
+   * 
+   * @return the {@link SecretKey} used for JWT operations.
+   */
+  private SecretKey getKey() {
+    byte[] encodedKeyBytes = kmsUtils.decrypt(keyService.getEncryptedSecretKey());
+    byte[] keyBytes = Base64.getDecoder().decode(encodedKeyBytes);
+    return Keys.hmacShaKeyFor(keyBytes);
   }
 }

@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -50,12 +48,9 @@ public class AuthService {
   @Value("${security.header.role}")
   private String userRoleHeader;
 
-  @Lazy
-  @Autowired
-  private ConfirmationTokenService confirmationTokenService;
-
   private final UserRepository userRepository;
   private final JwtService jwtService;
+  private final ConfirmationTokenService confirmationTokenService;
   private final BCryptPasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
   private final RabbitTemplate rabbitTemplate;
@@ -72,9 +67,8 @@ public class AuthService {
     String email = request.getEmail();
     log.info("Registering user with email {}", email);
 
-    if (userRepository.existsByEmail(email)) {
+    if (userRepository.existsByEmail(email))
       handleUserExists(email);
-    }
 
     UserPrincipal principal = createPrincipal(request);
     userRepository.save(principal);
@@ -132,7 +126,7 @@ public class AuthService {
    */
   private void handleUserExists(String email) {
     log.warn("User with email {} already exists, creation aborted", email);
-    throw new UserExistsException(String.format("User with email %s already exists", email));
+    throw new UserExistsException("User already exists with email: " + email);
   }
 
   /**
@@ -165,7 +159,7 @@ public class AuthService {
    * @param principal the user principal containing user details.
    */
   private void handleVerificationEmail(UserPrincipal principal) {
-    String token = confirmationTokenService.create(principal);
+    String token = confirmationTokenService.create(principal.getEmail());
     String link = generateVerificationLink(token);
     sendVerificationEmail(new EmailVerificationDetails(principal.getEmail(), principal.getFirstName(), link));
   }

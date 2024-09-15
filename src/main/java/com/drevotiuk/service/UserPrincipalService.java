@@ -37,7 +37,7 @@ public class UserPrincipalService implements UserDetailsService {
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return userRepository.findByEmail(email).orElseThrow(() -> {
       log.warn("User with email {} not found", email);
-      return new UsernameNotFoundException(String.format("User with email %s not found", email));
+      return new UsernameNotFoundException("User not found with email: " + email);
     });
   }
 }

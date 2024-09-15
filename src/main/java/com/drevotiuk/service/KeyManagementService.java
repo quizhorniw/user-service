@@ -48,20 +48,20 @@ public class KeyManagementService {
   }
 
   /**
-   * Generates secret key as plain text using {@link KeyGenerator}.
+   * Retrieves the encrypted secret key from the database using the provided key
+   * ID.
    * 
-   * @return the generated secret key.
+   * @return the encrypted secret key if found in the database.
+   * @throws KeyNotFoundException if the secret key is not found in the database.
    */
-  private byte[] generateSecretKey() {
-    try {
-      KeyGenerator keyGen = KeyGenerator.getInstance(algorithm);
-      return Base64.getEncoder().encode(keyGen.generateKey().getEncoded());
-    } catch (NoSuchAlgorithmException e) {
-      log.warn("Algorithm not found: {}", algorithm, e);
-      // Runtime exception to be caught in @RestControllerAdvice to stop application
-      // from future data proceeding
-      throw new InvalidAlgorithmException("Algorithm not found");
-    }
+  private byte[] retrieveKeyFromDatabase() throws KeyNotFoundException {
+    log.info("Extracting encrypted secret key from database");
+    return secretKeyRepository.findById(keyId)
+        .map(JwtSecretKey::getEncryptedKey)
+        .orElseThrow(() -> {
+          log.info("Secret key not found in database, creating one");
+          return new KeyNotFoundException("Secret key not found in database");
+        });
   }
 
   /**
@@ -77,20 +77,20 @@ public class KeyManagementService {
   }
 
   /**
-   * Retrieves the encrypted secret key from the database using the provided key
-   * ID.
+   * Generates secret key as plain text using {@link KeyGenerator}.
    * 
-   * @return the encrypted secret key if found in the database.
-   * @throws KeyNotFoundException if the secret key is not found in the database.
+   * @return the generated secret key.
    */
-  private byte[] retrieveKeyFromDatabase() throws KeyNotFoundException {
-    log.info("Extracting encrypted secret key from database");
-    return secretKeyRepository.findById(keyId)
-        .map(JwtSecretKey::getEncryptedKey)
-        .orElseThrow(() -> {
-          log.info("Secret key not found in database, creating one");
-          return new KeyNotFoundException("Secret key not found in database");
-        });
+  private byte[] generateSecretKey() {
+    try {
+      KeyGenerator keyGen = KeyGenerator.getInstance(algorithm);
+      return Base64.getEncoder().encode(keyGen.generateKey().getEncoded());
+    } catch (NoSuchAlgorithmException e) {
+      log.warn("Algorithm not found: {}", algorithm);
+      // Runtime exception to be caught in @RestControllerAdvice to stop application
+      // from future data proceeding
+      throw new InvalidAlgorithmException("Algorithm not found");
+    }
   }
 
   /**
