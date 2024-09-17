@@ -9,5 +9,5 @@ spring:
     import: configserver:http://localhost:9999
   data:
     mongodb:
-      port: 27018
+      port: ${mongodb.port}
       database: userdb
