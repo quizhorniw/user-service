@@ -36,8 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-  @Value("${services.user.gateway-uri}")
-  private String serviceUrl;
+  @Value("${app.user-verif-url}")
+  private String userVerificationApiUrl;
   @Value("${rabbitmq.exchange.notification-service}")
   private String exchange;
   @Value("${rabbitmq.routingkey.email-verification}")
@@ -139,7 +139,7 @@ public class AuthService {
    * @return a formatted verification link.
    */
   private String generateVerificationLink(String token) {
-    return String.format("%s/users/confirm?token=%s", serviceUrl, token);
+    return String.format("%s/users/confirm?token=%s", userVerificationApiUrl, token);
   }
 
   /**

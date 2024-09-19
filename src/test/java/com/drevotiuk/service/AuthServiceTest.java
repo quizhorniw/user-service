@@ -73,7 +73,7 @@ public class AuthServiceTest {
 
     given(passwordEncoder.encode("qwerty123")).willReturn("encoded password");
     given(confirmationTokenService.create("johndoe@mail.com")).willReturn("verif-token");
-    setDeclaredField(underTest, "serviceUrl", "http://mysite.com/myservice");
+    setDeclaredField(underTest, "userVerificationApiUrl", "http://mysite.com/myservice");
     setDeclaredField(underTest, "exchange", "test exchange");
     setDeclaredField(underTest, "routingKey", "test routing key");
 

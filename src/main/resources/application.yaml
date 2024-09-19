@@ -1,12 +1,15 @@
 server:
-  port: ${api.port.user-service}
+  port: ${SERVER_PORT:9091}
   error:
     include-message: always
     include-binding-errors: always
 
 spring:
   config:
-    import: configserver:http://${CONFIG_SERVER_HOSTNAME:localhost}:${CONFIG_SERVER_PORT:9999}
+    import: configserver:${CONFIG_SERVER_URI:http://localhost:9999}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/userdb}
   cloud:
     config:
       fail-fast: true
@@ -15,11 +18,9 @@ spring:
         max-attempts: 10
         max-interval: 5000
         multiplier: 1.5
-  data:
-    mongodb:
-      host: ${MONGO_HOSTNAME:localhost}
-      port: ${MONGO_PORT:27017}
-      database: userdb
   rabbitmq:
     host: ${RABBITMQ_HOSTNAME:localhost}
     port: ${RABBITMQ_PORT:5672}
+
+app:
+  user-verif-url: ${GATEWAY_URI:http://localhost:9090}
