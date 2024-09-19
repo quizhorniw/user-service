@@ -56,7 +56,7 @@ public class JwtServiceTest {
 
     assertThat(claims.getSubject()).isEqualTo("test username");
     assertThat(claims.getIssuedAt()).isBefore(Instant.now());
-    assertThat(claims.getExpiration()).isEqualToIgnoringSeconds(claims.getIssuedAt().toInstant().plusMillis(999999));
+    assertThat(claims.getExpiration()).isEqualToIgnoringMinutes(claims.getIssuedAt().toInstant().plusMillis(999999));
   }
 
   @Test

@@ -78,17 +78,6 @@ public class AuthService {
   }
 
   /**
-   * Enables the user with the specified email.
-   * 
-   * @param email the email of the user to enable.
-   */
-  public void enableUser(String email) {
-    UserPrincipal principal = getUserByEmail(email);
-    principal.setEnabled(true);
-    userRepository.save(principal);
-  }
-
-  /**
    * Logs in a user with the given login request and generates a JWT token.
    * 
    * @param request the login request containing user credentials.

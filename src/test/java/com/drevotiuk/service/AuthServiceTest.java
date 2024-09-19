@@ -30,7 +30,6 @@ import com.drevotiuk.model.UserHeaders;
 import com.drevotiuk.model.UserPrincipal;
 import com.drevotiuk.model.UserRole;
 import com.drevotiuk.model.exception.UserExistsException;
-import com.drevotiuk.model.exception.UserNotFoundException;
 import com.drevotiuk.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,48 +52,6 @@ public class AuthServiceTest {
   void setUp() {
     underTest = new AuthService(userRepository, jwtService, confirmationTokenService, passwordEncoder,
         authenticationManager, rabbitTemplate);
-  }
-
-  @Test
-  void shouldEnableUser() {
-    // given
-    UserPrincipal user = new UserPrincipal(
-        ObjectId.get(),
-        "John",
-        "Doe",
-        LocalDate.now(),
-        "johndoe@mail.com",
-        "qwerty123",
-        UserRole.USER,
-        false,
-        false);
-    given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
-
-    // when
-    underTest.enableUser(user.getEmail());
-
-    // then
-    ArgumentCaptor<UserPrincipal> userPrincipalArgumentCaptor = ArgumentCaptor.forClass(UserPrincipal.class);
-    verify(userRepository).save(userPrincipalArgumentCaptor.capture());
-
-    UserPrincipal capturedUser = userPrincipalArgumentCaptor.getValue();
-    user.setEnabled(true);
-    assertThat(capturedUser).isEqualTo(user);
-  }
-
-  @Test
-  void shouldThrow_whenUserNotFound_whileEnablingUser() {
-    // given
-    String email = "testmail@mail.com";
-    given(userRepository.findByEmail(email)).willReturn(Optional.empty());
-
-    // when
-    // then
-    assertThatThrownBy(() -> underTest.enableUser(email))
-        .isInstanceOf(UserNotFoundException.class)
-        .hasMessageContaining("User not found");
-
-    verify(userRepository, never()).save(any());
   }
 
   @Test

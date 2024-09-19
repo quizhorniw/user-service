@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.drevotiuk.model.ConfirmationToken;
+import com.drevotiuk.model.UserPrincipal;
 import com.drevotiuk.model.exception.ConfirmationTokenException;
+import com.drevotiuk.model.exception.UserNotFoundException;
 import com.drevotiuk.repository.ConfirmationTokenRepository;
+import com.drevotiuk.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +29,7 @@ public class ConfirmationTokenService {
   private long tokenExpirationMinutes;
 
   private final ConfirmationTokenRepository repository;
-  private final AuthService authService;
+  private final UserRepository userRepository;
 
   /**
    * Creates a new confirmation token for the given user principal.
@@ -56,7 +59,7 @@ public class ConfirmationTokenService {
     ConfirmationToken confirmationToken = find(token);
     validate(confirmationToken);
     activateAndSave(confirmationToken);
-    authService.enableUser(confirmationToken.getUserEmail());
+    enableUser(confirmationToken.getUserEmail());
     log.info("Email verified successfully for token: {}", token);
     return "Email verified successfully";
   }
@@ -130,5 +133,20 @@ public class ConfirmationTokenService {
   private void save(ConfirmationToken token) {
     log.info("Saving token: {}", token.getToken());
     repository.save(token);
+  }
+
+  /**
+   * Enables the user with the specified email.
+   * 
+   * @param email the email of the user to enable.
+   */
+  private void enableUser(String email) {
+    UserPrincipal principal = userRepository.findByEmail(email).orElseThrow(() -> {
+      log.warn("User not found with email {}", email);
+      return new UserNotFoundException("User not found with email " + email);
+    });
+
+    principal.setEnabled(true);
+    userRepository.save(principal);
   }
 }

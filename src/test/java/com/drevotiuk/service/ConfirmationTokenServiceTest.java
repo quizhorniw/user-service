@@ -18,20 +18,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.drevotiuk.model.ConfirmationToken;
+import com.drevotiuk.model.UserPrincipal;
 import com.drevotiuk.model.exception.ConfirmationTokenException;
 import com.drevotiuk.repository.ConfirmationTokenRepository;
+import com.drevotiuk.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class ConfirmationTokenServiceTest {
   @Mock
   private ConfirmationTokenRepository confirmationTokenRepository;
   @Mock
-  private AuthService authService;
+  private UserRepository userRepository;
   private ConfirmationTokenService underTest;
 
   @BeforeEach
   void setUp() throws NoSuchFieldException, IllegalAccessException {
-    underTest = new ConfirmationTokenService(confirmationTokenRepository, authService);
+    underTest = new ConfirmationTokenService(confirmationTokenRepository, userRepository);
     setDeclaredField(underTest, "tokenExpirationMinutes", 99);
   }
 
@@ -65,6 +67,7 @@ public class ConfirmationTokenServiceTest {
         false,
         "testmail@mail.com");
     given(confirmationTokenRepository.findByToken(token)).willReturn(Optional.of(confirmationToken));
+    given(userRepository.findByEmail(confirmationToken.getUserEmail())).willReturn(Optional.of(new UserPrincipal()));
 
     // when
     String result = underTest.confirm(token);
@@ -79,7 +82,12 @@ public class ConfirmationTokenServiceTest {
     ConfirmationToken capturedToken = confirmationTokenArgumentCaptor.getValue();
     confirmationToken.setActivated(true);
     assertThat(capturedToken).isEqualTo(confirmationToken);
-    verify(authService).enableUser("testmail@mail.com");
+
+    ArgumentCaptor<UserPrincipal> userPrincipalArgumentCaptor = ArgumentCaptor.forClass(UserPrincipal.class);
+    verify(userRepository).save(userPrincipalArgumentCaptor.capture());
+
+    UserPrincipal capturedUser = userPrincipalArgumentCaptor.getValue();
+    assertThat(capturedUser.isEnabled()).isTrue();
   }
 
   @Test
@@ -102,7 +110,7 @@ public class ConfirmationTokenServiceTest {
         .hasMessageContaining("Email is already verified");
 
     verify(confirmationTokenRepository, never()).save(any());
-    verify(authService, never()).enableUser(anyString());
+    verify(userRepository, never()).save(any());
   }
 
   @Test
@@ -125,7 +133,7 @@ public class ConfirmationTokenServiceTest {
         .hasMessageContaining("Verification link is expired");
 
     verify(confirmationTokenRepository, never()).save(any());
-    verify(authService, never()).enableUser(anyString());
+    verify(userRepository, never()).save(any());
   }
 
   @Test
@@ -141,7 +149,7 @@ public class ConfirmationTokenServiceTest {
         .hasMessageContaining("Invalid verification link");
 
     verify(confirmationTokenRepository, never()).save(any());
-    verify(authService, never()).enableUser(anyString());
+    verify(userRepository, never()).save(any());
   }
 
   private void setDeclaredField(Object target, String fieldName, Object value)
