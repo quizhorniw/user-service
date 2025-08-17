@@ -34,7 +34,7 @@ public class KmsUtils {
    * @param plaintext the plaintext to encrypt.
    * @return the encrypted ciphertext.
    */
-  public byte[] encrypt(byte[] plaintext) {
+  byte[] encrypt(byte[] plaintext) {
     return symmetricCryptoService.encrypt(SymmetricEncryptRequest.newBuilder()
         .setKeyId(keyId)
         .setPlaintext(ByteString.copyFrom(plaintext))
@@ -48,7 +48,7 @@ public class KmsUtils {
    * @param ciphertext the ciphertext to decrypt.
    * @return the decrypted plaintext.
    */
-  public byte[] decrypt(byte[] ciphertext) {
+  byte[] decrypt(byte[] ciphertext) {
     return symmetricCryptoService.decrypt(SymmetricDecryptRequest.newBuilder()
         .setKeyId(keyId)
         .setCiphertext(ByteString.copyFrom(ciphertext))
