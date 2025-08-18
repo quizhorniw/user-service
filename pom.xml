@@ -6,11 +6,11 @@
   <parent>
     <groupId>com.drevotiuk</groupId>
     <artifactId>ecommerce</artifactId>
-    <version>2.0</version>
+    <version>2.2</version>
   </parent>
 
   <artifactId>user-service</artifactId>
-  <version>2.0</version>
+  <version>2.2</version>
   <name>User Service</name>
   <description>Provides authentication, authorization and customer-related business logic</description>
 
@@ -115,6 +115,13 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
           <mainClass>com.drevotiuk.UserApplication</mainClass>
+          <image>
+            <name>danistollen/${artifactId}</name>
+            <tags>
+              <tag>${project.version}</tag>
+              <tag>latest</tag>
+            </tags>
+          </image>
         </configuration>
       </plugin>
     </plugins>

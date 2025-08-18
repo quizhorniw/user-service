@@ -21,6 +21,9 @@ spring:
   rabbitmq:
     host: ${RABBITMQ_HOSTNAME:localhost}
     port: ${RABBITMQ_PORT:5672}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 app:
   user-verif-url: ${GATEWAY_URI:http://localhost:9090}
