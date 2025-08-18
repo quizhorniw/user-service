@@ -53,7 +53,7 @@ public class SecurityConfig {
         .authorizeRequests()
         .antMatchers("/api/v*/users/login", "/api/v*/users/register", "/api/v*/users/confirm**")
         .permitAll()
-        .antMatchers("/v2/api-docs", "/swagger-resources/**", "/swagger-ui/**")
+        .antMatchers("/v3/api-docs", "/swagger-resources/**", "/swagger-ui/**")
         .permitAll()
         .antMatchers("/api/v*/management/users/**")
         .hasRole("ADMIN")
