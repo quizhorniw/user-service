@@ -52,7 +52,7 @@ public class SecurityConfig {
         .csrf().disable()
         .authorizeRequests()
         .antMatchers("/api/v*/users/login", "/api/v*/users/register",
-            "/api/v*/users/confirm**")
+            "/api/v*/users/confirm**", "/swagger-ui/*")
         .permitAll()
         .antMatchers("/api/v*/management/users/**")
         .hasRole("ADMIN")
